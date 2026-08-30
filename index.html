@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Zásobník 20 nízkosacharidových raňajok do 15 minút — makrá, postupy a zámeny surovín.">
+<meta name="description" content="Zásobník 24 nízkosacharidových raňajok do 15 minút — makrá, postupy a zámeny surovín.">
 <meta name="color-scheme" content="light dark">
 <title>Raňajky bez sacharidov</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -202,6 +202,12 @@
     border-top:1px solid var(--line-soft);padding-top:12px;
   }
   .tip b{color:var(--ink);font-weight:600}
+  .src{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;line-height:1.5;
+    color:var(--muted);margin-top:-4px;
+  }
+  .src a{color:var(--accent);text-underline-offset:2px}
+  .src a:hover{text-decoration:none}
   .tags{display:flex;gap:6px;flex-wrap:wrap}
   .tag{
     font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);
@@ -252,7 +258,7 @@
   <header>
     <div class="eyebrow">Raňajkový zásobník · nízke sacharidy · chudnutie tuku</div>
     <h1>Raňajky s minimom sacharidov</h1>
-    <p class="lede">Dvadsať raňajok do pätnástich minút — od omelety až po sedem takých, čo majú tri suroviny a nulový postup. Každá má <strong>pod 10 g sacharidov</strong> a <strong>20 až 50 g bielkovín</strong> preto, že takéto raňajky držia sýtosť do obeda, a kto nemá o desiatej hlad, ten cez deň zje menej.</p>
+    <p class="lede">Dvadsaťštyri raňajok — väčšina do pätnástich minút, sedem z nich má tri suroviny a nulový postup. Každá má <strong>najviac 10 g sacharidov</strong> a <strong>20 až 50 g bielkovín</strong> preto, že takéto raňajky držia sýtosť do obeda, a kto nemá o desiatej hlad, ten cez deň zje menej.</p>
 
     <div class="panel">
       <div class="panel-head">
@@ -517,6 +523,42 @@ const RECIPES = [
     ing:[["Cottage cheese","200 g"],["Cherry paradajky","100 g"],["Olivový olej","1 lyžica"],["Soľ, bazalka",""]],
     steps:["Cottage daj do misky.","Paradajky prekroj na polovice a pridaj.","Pokvapkaj olejom, osoľ, posyp bazalkou."],
     tip:"<b>Olej tu nie je ozdoba.</b> Bez neho je to jedlo takmer bez tuku a hlad príde o hodinu skôr."
+  },
+  {
+    name:"Zapekané vajíčka so špenátom a fetou",
+    time:"10 min práce · 15 min v rúre", tags:["Vaječné","Meal prep"],
+    kcal:293, p:21, f:20, c:7,
+    ing:[["Vajcia","4 ks"],["Baby špenát","100 g"],["Feta syr","50 g"],["Cream cheese light","30 g"],["Mlieko","50 ml"],["Cibuľa, cesnak","1 malá + 1 strúčik"],["Olivový olej","1 lyžička"]],
+    steps:["Na oleji orestuj nakrájanú cibuľu, potom pridaj cesnak a špenát.","Miešaj, kým sa neodparí voda z listov.","Vmiešaj fetu, cream cheese, mlieko a rozšľahané vajcia.","Rozdeľ do dvoch zapekacích misiek a peč 15 minút pri 180 °C."],
+    tip:"<b>Recept je na dve porcie — druhú si nechaj na zajtra.</b> Z chladničky ju ráno stačí zohriať a máš raňajku za dve minúty.",
+    src:{name:"fitrecepty.sk", url:"https://www.fitrecepty.sk/recept/zapekane-vajicka-so-spenatom-a-feta-syrom"}
+  },
+  {
+    name:"Čokoládový puding z jogurtu",
+    time:"3 min", tags:["Bez varenia","Do 5 minút","Vysoký proteín"],
+    kcal:330, p:42, f:14, c:10,
+    ing:[["Grécky jogurt (2 % tuku)","200 g"],["Srvátkový proteín","25 g"],["Kakao, nesladené","2 čl (6 g)"],["Mandľové alebo arašidové maslo","15 g"],["Štipka soli",""]],
+    steps:["Všetko daj do misky alebo mixéra.","Miešaj, kým sa kakao úplne rozpustí a nezostanú hrudky.","Ak je príliš hustý, dolej lyžicu vody."],
+    tip:"<b>Toto je odpoveď na rannú chuť na sladké.</b> Oproti pôvodnému receptu je tu viac proteínu a orechové maslo namiesto ovocia — inak by to bolo 170 kcal a o hodinu hlad.",
+    src:{name:"fitrecepty.sk", url:"https://www.fitrecepty.sk/recept/rychly-coko-puding-z-jogurtu"}
+  },
+  {
+    name:"Tvarohovo-cesnaková nátierka",
+    time:"8 min", tags:["Bez varenia"],
+    kcal:365, p:27, f:23, c:10,
+    ing:[["Polotučný tvaroh","150 g"],["Vlašské orechy, pomleté","25 g"],["Kyslá smotana","20 g"],["Cesnak","2 strúčiky"],["Pažítka, soľ, korenie",""],["Uhorka alebo paprika","80 g"]],
+    steps:["Tvaroh rozmiešaj so smotanou do hladka.","Vmiešaj pomleté orechy a prelisovaný cesnak.","Osoľ, okorením, posyp pažítkou.","Natri na hrubšie plátky uhorky alebo prúžky papriky."],
+    tip:"<b>Pôvodný recept ju podáva s celozrnným pečivom — to je práve to, čo tu vynechávame.</b> Na uhorke má rovnakú chuť a o 25 g sacharidov menej.",
+    src:{name:"fitrecepty.sk", url:"https://www.fitrecepty.sk/recept/fit-tvarohovo-cesnakova-natierka"}
+  },
+  {
+    name:"Tuniakový chlebík (sendvič bez múky)",
+    time:"20 min · vydrží 3 dni", tags:["Meal prep","Vysoký proteín"],
+    kcal:430, p:44, f:26, c:4,
+    ing:[["Tuniak vo vlastnej šťave","120 g"],["Vajce","1 ks"],["Mandľová múka","20 g"],["Cream cheese na natretie","30 g"],["Uhorka","50 g"],["Cesnakové korenie, paprika, soľ",""]],
+    steps:["Tuniaka odkvapkaj a rozmiešaj s vajcom, mandľovou múkou a koreninami.","Zmes rozotri na papier na pečenie do obdĺžnika hrubého asi pol centimetra.","Peč 12–15 minút pri 180 °C dozlatista, nechaj vychladnúť.","Rozkroj na polovice, natri cream cheese, vlož plátky uhorky a zlož ako sendvič."],
+    tip:"<b>Celozrnnú múku z pôvodného receptu som nahradil mandľovou.</b> Chlebík sa správa rovnako, ale zo 16 g sacharidov ostali 4 — a bielkoviny vyskočili na 44 g.",
+    src:{name:"fitrecepty.sk", url:"https://www.fitrecepty.sk/recept/sendvic-z-tuniaka"}
   }
 ];
 
@@ -525,7 +567,8 @@ const FOTO = [
   "omeleta-slanina","saksuka","losos-vajcia","vajecne-muffiny","hovadzie-huby",
   "tvaroh-orechy","jogurt-chia","chia-kasa","kura-avokado","tuniakovy-salat",
   "bryndzova-natierka","caprese","smoothie","vajcia-natvrdo-syr","prazenica-syr",
-  "skyr-orechy","sunkove-rolky","volske-oka-avokado","tuniak-konzerva","cottage-paradajky"
+  "skyr-orechy","sunkove-rolky","volske-oka-avokado","tuniak-konzerva","cottage-paradajky",
+  "zapekane-vajcia-feta","coko-puding","tvarohova-natierka","tuniakovy-chlebik"
 ];
 
 const grid = document.getElementById('grid');
@@ -576,6 +619,7 @@ function card(r, i){
       </div>
       <div class="tags">${r.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
       <p class="tip">${r.tip}</p>
+      ${r.src ? `<p class="src">Podľa receptu z <a href="${esc(r.src.url)}" target="_blank" rel="noopener">${esc(r.src.name)}</a>, upravené na nízke sacharidy.</p>` : ''}
     </div>`;
   // kým fotka v priečinku img/ neexistuje, karta ukáže prázdny rámik namiesto rozbitého obrázka
   const im = el.querySelector('.shot img');
