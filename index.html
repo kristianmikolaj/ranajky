@@ -135,6 +135,92 @@
   .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
   .chip:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+  /* ---------- ovládanie ---------- */
+  .controls{display:flex;flex-direction:column;gap:20px;margin:26px 0 26px}
+  .ctrl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .ctrl-lbl{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);display:block;margin-bottom:9px;
+  }
+  .ctrl-lbl.inline{margin:0}
+  select.sort{
+    font-family:"IBM Plex Mono",monospace;font-size:12px;
+    padding:7px 12px;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);border-radius:100px;cursor:pointer;
+  }
+  select.sort:hover{border-color:var(--accent)}
+  .count{
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);
+    margin-left:auto;font-variant-numeric:tabular-nums;
+  }
+  .empty{
+    border:1px dashed var(--line);padding:36px 24px;text-align:center;
+    color:var(--muted);font-size:14.5px;border-radius:2px;
+  }
+
+  /* ---------- denník ---------- */
+  .cal-head{display:flex;align-items:center;gap:14px;margin:26px 0 18px}
+  .cal-title{font-family:"Fraunces",Georgia,serif;font-size:22px;font-weight:600}
+  .navbtn{
+    font-family:"IBM Plex Mono",monospace;font-size:15px;line-height:1;
+    width:32px;height:32px;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);border-radius:100px;cursor:pointer;
+  }
+  .navbtn:hover{border-color:var(--accent)}
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:2px;
+    overflow:hidden;margin-bottom:20px;
+  }
+  .stat{background:var(--surface);padding:16px 18px}
+  .stat .k{
+    font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .stat .v{
+    font-family:"Fraunces",Georgia,serif;font-size:28px;font-weight:600;
+    line-height:1.2;margin-top:4px;font-variant-numeric:tabular-nums;
+  }
+  .stat .v small{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:400;color:var(--muted)}
+  .stat .v.small{font-size:16px;line-height:1.35}
+  .cal{
+    display:grid;grid-template-columns:repeat(7,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:2px;overflow:hidden;
+  }
+  .dow{
+    background:var(--chip);padding:8px 6px;text-align:center;
+    font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .day{
+    background:var(--surface);min-height:80px;padding:7px 8px;
+    display:flex;flex-direction:column;gap:5px;align-items:flex-start;
+    cursor:pointer;border:none;text-align:left;font:inherit;color:inherit;
+  }
+  .day.blank{background:var(--line-soft);cursor:default}
+  .day:not(.blank):hover{background:var(--chip)}
+  .day .d{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .day.today .d{color:var(--accent);font-weight:600}
+  .day.sel{outline:2px solid var(--accent);outline-offset:-2px}
+  .day .meal{
+    font-size:11.5px;line-height:1.3;color:var(--ink);
+    border-left:2px solid var(--protein);padding-left:5px;
+  }
+  .picker{
+    margin-top:18px;border:1px solid var(--line);background:var(--surface);
+    padding:20px 22px;border-radius:2px;box-shadow:var(--shadow);
+  }
+  .picker h3{font-size:18px;margin-bottom:13px}
+  .picklist{display:flex;flex-wrap:wrap;gap:7px}
+  .pick{
+    font-family:inherit;font-size:12.5px;padding:6px 11px;border:1px solid var(--line);
+    background:var(--chip);color:var(--ink);border-radius:100px;cursor:pointer;
+  }
+  .pick:hover{border-color:var(--accent)}
+  .pick.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  .pick.del{background:transparent;border-color:var(--carb);color:var(--carb)}
+  .store-note{font-size:13px;color:var(--muted);margin-top:16px;max-width:66ch}
+
   /* ---------- cards ---------- */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
   .card{
@@ -306,8 +392,50 @@
       </div>
     </div>
 
-    <div class="filters" id="filters" role="group" aria-label="Filtrovanie receptov"></div>
+    <div class="controls">
+      <div>
+        <span class="ctrl-lbl">Typ raňajok</span>
+        <div class="ctrl-row" id="filters" role="group" aria-label="Filtrovanie podľa typu"></div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">Čo máš doma — ukáže len to, na čo ti nič nechýba</span>
+        <div class="ctrl-row" id="ingFilters" role="group" aria-label="Filtrovanie podľa surovín"></div>
+      </div>
+      <div class="ctrl-row">
+        <label class="ctrl-lbl inline" for="sort">Zoradiť</label>
+        <select class="sort" id="sort">
+          <option value="poradie">Pôvodné poradie</option>
+          <option value="cas">Najrýchlejšie</option>
+          <option value="protein">Najviac bielkovín</option>
+          <option value="kcalAsc">Najmenej kalórií</option>
+          <option value="kcalDesc">Najviac kalórií</option>
+          <option value="sach">Najmenej sacharidov</option>
+        </select>
+        <span class="count" id="count"></span>
+      </div>
+    </div>
     <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" hidden>Na túto kombináciu nič nesedí. Skús pridať ďalšiu surovinu alebo uvoľniť filter typu.</p>
+  </section>
+
+  <section id="dennik">
+    <div class="sec-head">
+      <div>
+        <h2>Denník raňajok</h2>
+        <p class="sec-sub">Klikni na deň a vyber, čo si mal. Za mesiac uvidíš, koľko dní si to udržal a aké máš priemery.</p>
+      </div>
+    </div>
+
+    <div class="cal-head">
+      <button class="navbtn" id="prevM" type="button" aria-label="Predchádzajúci mesiac">‹</button>
+      <span class="cal-title" id="calTitle"></span>
+      <button class="navbtn" id="nextM" type="button" aria-label="Nasledujúci mesiac">›</button>
+    </div>
+
+    <div class="stats" id="stats"></div>
+    <div class="cal" id="cal"></div>
+    <div class="picker" id="picker" hidden></div>
+    <p class="store-note" id="storeNote"></p>
   </section>
 
   <section>
@@ -571,7 +699,8 @@ const RECIPES = [
   }
 ];
 
-// názvy súborov s fotkami — poradie sa musí zhodovať s poradím receptov vyššie
+// ---------- údaje viazané na poradie receptov vyššie ----------
+// názvy súborov s fotkami (img/<nazov>.jpg)
 const FOTO = [
   "omeleta-slanina","saksuka","losos-vajcia","vajecne-muffiny","hovadzie-huby",
   "tvaroh-orechy","jogurt-chia","chia-kasa","kura-avokado","tuniakovy-salat",
@@ -580,10 +709,52 @@ const FOTO = [
   "zapekane-vajcia-feta","coko-puding","tvarohova-natierka","tuniakovy-chlebik"
 ];
 
+// čas prípravy v minútach — používa sa na zoradenie
+const MINS = [10,15,8,25,12,3,3,5,10,10,8,5,3,10,5,1,3,6,2,2,25,3,8,20];
+
+// hlavné suroviny — soľ, korenie, olej a maslo sa predpokladajú doma
+const HAS = [
+  ["vajcia","maso","zelenina"],
+  ["vajcia","zelenina","syr"],
+  ["vajcia","ryby","avokado"],
+  ["vajcia","maso","syr","zelenina"],
+  ["vajcia","maso","zelenina"],
+  ["mliecne","orechy"],
+  ["mliecne","orechy"],
+  ["orechy","protein"],
+  ["maso","vajcia","avokado"],
+  ["ryby","vajcia","zelenina"],
+  ["mliecne","vajcia","zelenina"],
+  ["syr","maso","zelenina"],
+  ["protein","avokado","orechy"],
+  ["vajcia","syr"],
+  ["vajcia","syr"],
+  ["mliecne","orechy"],
+  ["maso","syr"],
+  ["vajcia","avokado"],
+  ["ryby"],
+  ["mliecne","zelenina"],
+  ["vajcia","syr","mliecne","zelenina"],
+  ["mliecne","protein","orechy"],
+  ["mliecne","orechy","zelenina"],
+  ["ryby","vajcia","orechy","syr","zelenina"]
+];
+
+const ING = [
+  ["vajcia","Vajcia"],["mliecne","Tvaroh a jogurt"],["syr","Syr"],["maso","Mäso a šunka"],
+  ["ryby","Tuniak a losos"],["zelenina","Zelenina"],["orechy","Orechy a semienka"],
+  ["avokado","Avokádo"],["protein","Proteín"]
+];
+const TAGS = ["Všetko","3 suroviny","Do 5 minút","Vaječné","Bez varenia","Meal prep","Vysoký proteín"];
+const MESIACE = ["Január","Február","Marec","Apríl","Máj","Jún","Júl","August","September","Október","November","December"];
+const DNI = ["Po","Ut","St","Št","Pi","So","Ne"];
+
 const grid = document.getElementById('grid');
 const filterBar = document.getElementById('filters');
-const TAGS = ["Všetko","3 suroviny","Do 5 minút","Vaječné","Bez varenia","Meal prep","Vysoký proteín"];
-let active = "Všetko";
+const ingBar = document.getElementById('ingFilters');
+const sortSel = document.getElementById('sort');
+const countEl = document.getElementById('count');
+const emptyEl = document.getElementById('empty');
 
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -591,7 +762,6 @@ function card(r, i){
   const pk = r.p*4, fk = r.f*9, ck = r.c*4, tot = pk+fk+ck;
   const el = document.createElement('article');
   el.className = 'card';
-  el.dataset.tags = r.tags.join('|');
   el.innerHTML = `
     <div class="shot">
       <div class="shot-ph">
@@ -636,24 +806,162 @@ function card(r, i){
   return el;
 }
 
-RECIPES.forEach((r,i)=>grid.appendChild(card(r,i)));
+const CARDS = RECIPES.map(card);
 
-TAGS.forEach(t=>{
+// ---------- filtrovanie a zoradenie ----------
+let activeTag = "Všetko";
+const mam = new Set();
+
+const SORTS = {
+  cas:      (a,b) => MINS[a] - MINS[b],
+  protein:  (a,b) => RECIPES[b].p - RECIPES[a].p,
+  kcalAsc:  (a,b) => RECIPES[a].kcal - RECIPES[b].kcal,
+  kcalDesc: (a,b) => RECIPES[b].kcal - RECIPES[a].kcal,
+  sach:     (a,b) => RECIPES[a].c - RECIPES[b].c
+};
+
+function render(){
+  let idx = RECIPES.map((_,i)=>i).filter(i => {
+    const tagOk = activeTag === "Všetko" || RECIPES[i].tags.includes(activeTag);
+    const ingOk = mam.size === 0 || HAS[i].every(k => mam.has(k));
+    return tagOk && ingOk;
+  });
+  const by = SORTS[sortSel.value];
+  if (by) idx = idx.slice().sort(by);
+  grid.replaceChildren(...idx.map(i => CARDS[i]));
+  countEl.textContent = `Zobrazených ${idx.length} z ${RECIPES.length}`;
+  emptyEl.hidden = idx.length > 0;
+}
+
+TAGS.forEach(t => {
   const b = document.createElement('button');
   b.className = 'chip';
   b.type = 'button';
   b.textContent = t;
-  b.setAttribute('aria-pressed', t===active ? 'true':'false');
-  b.addEventListener('click',()=>{
-    active = t;
-    filterBar.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed', c.textContent===t ? 'true':'false'));
-    grid.querySelectorAll('.card').forEach(c=>{
-      const show = t==="Všetko" || c.dataset.tags.split('|').includes(t);
-      c.hidden = !show;
-    });
+  b.setAttribute('aria-pressed', t === activeTag ? 'true' : 'false');
+  b.addEventListener('click', () => {
+    activeTag = t;
+    filterBar.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.textContent === t ? 'true' : 'false'));
+    render();
   });
   filterBar.appendChild(b);
 });
+
+ING.forEach(([key,label]) => {
+  const b = document.createElement('button');
+  b.className = 'chip';
+  b.type = 'button';
+  b.textContent = label;
+  b.setAttribute('aria-pressed','false');
+  b.addEventListener('click', () => {
+    if (mam.has(key)) { mam.delete(key); b.setAttribute('aria-pressed','false'); }
+    else { mam.add(key); b.setAttribute('aria-pressed','true'); }
+    render();
+  });
+  ingBar.appendChild(b);
+});
+
+sortSel.addEventListener('change', render);
+render();
+
+// ---------- denník ----------
+const LSKEY = 'ranajky-dennik-v1';
+const calEl = document.getElementById('cal');
+const statsEl = document.getElementById('stats');
+const pickerEl = document.getElementById('picker');
+const calTitle = document.getElementById('calTitle');
+const storeNote = document.getElementById('storeNote');
+
+let storageOk = true;
+function loadLog(){
+  try { return JSON.parse(localStorage.getItem(LSKEY)) || {}; }
+  catch(e){ storageOk = false; return {}; }
+}
+function saveLog(){
+  try { localStorage.setItem(LSKEY, JSON.stringify(log)); }
+  catch(e){ storageOk = false; setNote(); }
+}
+function setNote(){
+  storeNote.textContent = storageOk
+    ? "Zápisy sú uložené len v tomto prehliadači a v tomto zariadení — nikam sa neposielajú a nikto iný ich nevidí. Ak vyčistíš údaje stránok alebo otvoríš stránku v inom prehliadači, denník bude prázdny."
+    : "Tento prehliadač neumožňuje ukladanie údajov stránok (napr. v anonymnom okne), takže zápisy sa po zatvorení karty stratia.";
+}
+
+let log = loadLog();
+const cur = new Date(); cur.setDate(1);
+let selDay = null;
+
+const pad = n => String(n).padStart(2,'0');
+const ymd = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+
+function renderStats(y,m){
+  const pre = `${y}-${pad(m+1)}-`;
+  const keys = Object.keys(log).filter(k => k.startsWith(pre) && RECIPES[log[k]]);
+  const n = keys.length;
+  const avg = f => Math.round(keys.reduce((s,k) => s + f(RECIPES[log[k]]), 0) / n);
+  let top = '—';
+  if (n){
+    const c = {};
+    keys.forEach(k => { c[log[k]] = (c[log[k]] || 0) + 1; });
+    const best = Object.keys(c).sort((a,b) => c[b] - c[a])[0];
+    top = `${esc(RECIPES[best].name)} <small>${c[best]}×</small>`;
+  }
+  statsEl.innerHTML = `
+    <div class="stat"><div class="k">Zapísaných dní</div><div class="v">${n}</div></div>
+    <div class="stat"><div class="k">Priemer kalórií</div><div class="v">${n ? avg(r=>r.kcal) : '—'} <small>kcal</small></div></div>
+    <div class="stat"><div class="k">Priemer bielkovín</div><div class="v">${n ? avg(r=>r.p) : '—'} <small>g</small></div></div>
+    <div class="stat"><div class="k">Najčastejšie</div><div class="v small">${top}</div></div>`;
+}
+
+function renderCal(){
+  const y = cur.getFullYear(), m = cur.getMonth();
+  calTitle.textContent = `${MESIACE[m]} ${y}`;
+  const first = (new Date(y,m,1).getDay() + 6) % 7;
+  const days = new Date(y, m+1, 0).getDate();
+  const t = new Date();
+  const todayKey = ymd(t.getFullYear(), t.getMonth(), t.getDate());
+  const kids = [];
+  DNI.forEach(d => { const e = document.createElement('div'); e.className = 'dow'; e.textContent = d; kids.push(e); });
+  for (let i = 0; i < first; i++){ const e = document.createElement('div'); e.className = 'day blank'; kids.push(e); }
+  for (let d = 1; d <= days; d++){
+    const key = ymd(y,m,d);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'day' + (key === todayKey ? ' today' : '') + (key === selDay ? ' sel' : '');
+    b.innerHTML = `<span class="d">${d}</span>` +
+      (RECIPES[log[key]] ? `<span class="meal">${esc(RECIPES[log[key]].name)}</span>` : '');
+    b.addEventListener('click', () => { selDay = key; renderCal(); renderPicker(); });
+    kids.push(b);
+  }
+  calEl.replaceChildren(...kids);
+  renderStats(y,m);
+}
+
+function renderPicker(){
+  if (!selDay){ pickerEl.hidden = true; return; }
+  pickerEl.hidden = false;
+  const [Y,M,D] = selDay.split('-');
+  const chosen = log[selDay];
+  pickerEl.innerHTML =
+    `<h3>${Number(D)}. ${MESIACE[Number(M)-1].toLowerCase()} ${Y}</h3>
+     <div class="picklist">
+       ${RECIPES.map((r,i) => `<button type="button" class="pick${chosen===i?' on':''}" data-i="${i}">${esc(r.name)}</button>`).join('')}
+       ${chosen !== undefined ? `<button type="button" class="pick del" data-del="1">Vymazať zápis</button>` : ''}
+     </div>`;
+  pickerEl.querySelectorAll('.pick').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.del) delete log[selDay];
+    else log[selDay] = Number(b.dataset.i);
+    saveLog();
+    renderCal();
+    renderPicker();
+  }));
+}
+
+document.getElementById('prevM').addEventListener('click', () => { cur.setMonth(cur.getMonth()-1); selDay = null; renderCal(); renderPicker(); });
+document.getElementById('nextM').addEventListener('click', () => { cur.setMonth(cur.getMonth()+1); selDay = null; renderCal(); renderPicker(); });
+
+setNote();
+renderCal();
 </script>
 </body>
 </html>
