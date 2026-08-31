@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Zásobník 24 nízkosacharidových raňajok do 15 minút — makrá, postupy, zámeny surovín a denník.">
+<meta name="color-scheme" content="light dark">
+<title>Raňajky bez sacharidov</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/styl.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Raňajkový zásobník · nízke sacharidy · chudnutie tuku</div>
+    <h1>Raňajky s minimom sacharidov</h1>
+    <p class="lede">Dvadsaťštyri raňajok — väčšina do pätnástich minút, sedem z nich má tri suroviny a nulový postup. Každá má <strong>najviac 10 g sacharidov</strong> a <strong>20 až 50 g bielkovín</strong> preto, že takéto raňajky držia sýtosť do obeda, a kto nemá o desiatej hlad, ten cez deň zje menej.</p>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="eyebrow">Na čom to stojí</div>
+      </div>
+      <div class="panel-grid">
+        <div class="rule">
+          <div class="n">Motor</div>
+          <h3>Kalorický deficit</h3>
+          <p>Tuk ubúda vtedy, keď je cez celý deň menej energie, než telo minie. Nízke sacharidy ráno sú nástroj, ktorý ten deficit uľahčuje — nie náhrada zaň.</p>
+        </div>
+        <div class="rule">
+          <div class="n">Pákový bod</div>
+          <h3>30–40 g bielkovín</h3>
+          <p>Bielkovina zasýti najsilnejšie zo všetkých troch makier a chráni svalstvo pri chudnutí. Toto je jediné číslo, ktoré treba ráno strážiť.</p>
+        </div>
+        <div class="rule">
+          <div class="n">Strop</div>
+          <h3>Do 10 g sacharidov</h3>
+          <p>Zelenina, pár bobúľ, mliečny cukor v tvarohu. Čo vypadáva: pečivo, ovsené vločky, müsli, džús, sladený jogurt, banán, med.</p>
+        </div>
+        <div class="rule">
+          <div class="n">Načasovanie</div>
+          <h3>Sacharidy k tréningu</h3>
+          <p>Tréning je poobede — tam majú sacharidy najväčší zmysel. Obed a jedlo okolo tréningu, nie raňajky. Deň sa tým nemusí zaobísť bez nich.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <div>
+        <h2>Zásobník receptov</h2>
+        <p class="sec-sub">Vyber si podľa toho, koľko je času a čo je v chladničke. Ak sa ti ráno nechce rozmýšľať, klikni na <strong>3 suroviny</strong>. Gramáže sú na jednu porciu pre dospelého; makrá sú zaokrúhlené odhady.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div>
+        <span class="ctrl-lbl">Typ raňajok</span>
+        <div class="ctrl-row" id="filters" role="group" aria-label="Filtrovanie podľa typu"></div>
+      </div>
+      <div>
+        <span class="ctrl-lbl">Čo máš doma — ukáže len to, na čo ti nič nechýba</span>
+        <div class="ctrl-row" id="ingFilters" role="group" aria-label="Filtrovanie podľa surovín"></div>
+      </div>
+      <div class="ctrl-row">
+        <label class="ctrl-lbl inline" for="sort">Zoradiť</label>
+        <select class="sort" id="sort">
+          <option value="poradie">Pôvodné poradie</option>
+          <option value="cas">Najrýchlejšie</option>
+          <option value="protein">Najviac bielkovín</option>
+          <option value="kcalAsc">Najmenej kalórií</option>
+          <option value="kcalDesc">Najviac kalórií</option>
+          <option value="sach">Najmenej sacharidov</option>
+        </select>
+        <span class="count" id="count" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" hidden>Na túto kombináciu nič nesedí. Skús pridať ďalšiu surovinu alebo uvoľniť filter typu.</p>
+  </section>
+
+  <section id="dennik">
+    <div class="sec-head">
+      <div>
+        <h2>Denník raňajok</h2>
+        <p class="sec-sub">Klikni na deň a vyber, čo si mal. Za mesiac uvidíš, koľko dní si to udržal a aké máš priemery.</p>
+      </div>
+    </div>
+
+    <div class="auth" id="auth"></div>
+
+    <div class="cal-head">
+      <button class="navbtn" id="prevM" type="button" aria-label="Predchádzajúci mesiac">‹</button>
+      <span class="cal-title" id="calTitle"></span>
+      <button class="navbtn" id="nextM" type="button" aria-label="Nasledujúci mesiac">›</button>
+    </div>
+
+    <div class="stats" id="stats"></div>
+    <div class="cal" id="cal"></div>
+    <div class="picker" id="picker" hidden></div>
+    <p class="store-note" id="storeNote"></p>
+  </section>
+
+  <section>
+    <h2>Zámeny, keď niečo chýba</h2>
+    <p class="sec-sub">Schéma je vždy rovnaká: <strong>bielkovina + tuk + zelenina</strong>. Ktorýkoľvek stĺpec sa dá vymeniť riadok za riadok.</p>
+    <div class="tbl-wrap" style="margin-top:22px">
+      <table>
+        <thead>
+          <tr><th>Bielkovina (vyber 1)</th><th>Tuk (vyber 1)</th><th>Zelenina / doplnok</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>3 vajcia</td><td>Maslo alebo ghí, 5–10 g</td><td>Špenát, hrsť</td></tr>
+          <tr><td>200 g polotučný tvaroh</td><td>Vlašské orechy, 30 g</td><td>Uhorka, pol</td></tr>
+          <tr><td>200 g grécky jogurt</td><td>Pol avokáda, 70 g</td><td>Cherry paradajky, 5 ks</td></tr>
+          <tr><td>120 g kuracie prsia</td><td>Olivový olej, 1 lyžica</td><td>Šampiňóny, 80 g</td></tr>
+          <tr><td>100 g tuniak vo vlastnej šťave</td><td>Mozzarella / eidam, 60 g</td><td>Paprika, pol</td></tr>
+          <tr><td>60 g údený losos</td><td>Chia alebo ľanové, 20 g</td><td>Rukola, hrsť</td></tr>
+          <tr><td>30 g srvátkový proteín</td><td>Mandle, 25 g</td><td>Maliny alebo čučoriedky, 40 g</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cols">
+      <div class="box">
+        <h3>Čo mať vždy doma</h3>
+        <ul>
+          <li><b>Vajcia</b> — 20 kusov na týždeň nie je veľa</li>
+          <li><b>Maslo, olivový olej</b> — základ každej panvice</li>
+          <li><b>Tvaroh, grécky jogurt, syr</b> — raňajky bez varenia</li>
+          <li><b>Konzervy tuniaka</b> — záchrana na uponáhľané ráno</li>
+          <li><b>Orechy, chia, mandle</b> — tuk, ktorý sa nekazí</li>
+          <li><b>Mrazený špenát</b> — zelenina, ktorá vydrží mesiace</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Čo z raňajok vypadáva</h3>
+        <ul>
+          <li><b>Pečivo a toast</b> — aj celozrnný, aj „fitness“</li>
+          <li><b>Ovsené vločky, müsli, cereálie</b></li>
+          <li><b>Ochutený jogurt</b> — býva v ňom 12–15 g cukru</li>
+          <li><b>Džús a smoothie z ovocia</b> — tekutý cukor nezasýti</li>
+          <li><b>Banán, hrozno, sušené ovocie</b></li>
+          <li><b>Med, marmeláda, čokoládové nátierky</b></li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Nápoje k raňajkám</h3>
+        <ul>
+          <li><b>Čierna káva</b> — nula sacharidov, nula kalórií</li>
+          <li><b>Káva so smotanou</b> — lyžica plnotučnej je v poriadku</li>
+          <li><b>Čaj, voda, minerálka</b></li>
+          <li><b>Pozor na latte</b> — 300 ml mlieka je ~15 g cukru</li>
+          <li><b>Bez sladidiel v nápoji</b> ak sa dá — chuť na sladké ide dole rýchlejšie</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Makrá sú prepočítané z bežných tabuľkových hodnôt surovín a zaokrúhlené — pri inej značke syra či jogurtu sa líšia o pár gramov, na výsledok to nemá vplyv. Toto je bežné stravovacie plánovanie, nie liečebná diéta: pri cukrovke, tehotenstve, ochorení obličiek alebo užívaní liekov na cukor či tlak patrí zmena jedálnička najprv k lekárovi.
+  </footer>
+</div>
+
+<!-- Poradie načítania je dôležité: config a data musia byť skôr než zvyšok,
+     spolocne.js skôr než recepty a denník, denník skôr než auth. -->
+<script src="js/config.js" defer></script>
+<script src="js/data.js" defer></script>
+<script src="js/spolocne.js" defer></script>
+<script src="js/recepty.js" defer></script>
+<script src="js/dennik.js" defer></script>
+<script src="js/auth.js" defer></script>
+</body>
+</html>
