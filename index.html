@@ -158,6 +158,32 @@
     color:var(--muted);font-size:14.5px;border-radius:2px;
   }
 
+  /* ---------- prihlásenie ---------- */
+  .auth{
+    border:1px solid var(--line);background:var(--surface);border-radius:2px;
+    padding:20px 22px;box-shadow:var(--shadow);margin-top:26px;
+  }
+  .auth h3{font-size:18px;margin-bottom:5px}
+  .auth .hint{font-size:14px;color:var(--muted);margin-bottom:15px;max-width:62ch}
+  .authform{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .authform input{
+    font:inherit;font-size:14px;padding:8px 13px;border:1px solid var(--line);
+    background:var(--paper);color:var(--ink);border-radius:100px;min-width:210px;
+  }
+  .authform input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .btn{
+    font-family:inherit;font-size:13px;padding:8px 15px;border-radius:100px;cursor:pointer;
+    border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);
+  }
+  .btn.ghost{background:transparent;color:var(--accent)}
+  .btn.link{border:none;background:none;color:var(--muted);text-decoration:underline;padding:8px 2px}
+  .auth-msg{font-size:13.5px;margin-top:13px;color:var(--muted);max-width:62ch}
+  .auth-msg.err{color:var(--carb)}
+  .auth-msg.ok{color:var(--protein)}
+  .auth-in{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:14.5px}
+  .sync{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);margin-top:11px}
+  .sync.err{color:var(--carb)}
+
   /* ---------- denník ---------- */
   .cal-head{display:flex;align-items:center;gap:14px;margin:26px 0 18px}
   .cal-title{font-family:"Fraunces",Georgia,serif;font-size:22px;font-weight:600}
@@ -197,6 +223,8 @@
     display:flex;flex-direction:column;gap:5px;align-items:flex-start;
     cursor:pointer;border:none;text-align:left;font:inherit;color:inherit;
   }
+  .day[disabled]{cursor:default}
+  .day[disabled]:hover{background:var(--surface)}
   .day.blank{background:var(--line-soft);cursor:default}
   .day:not(.blank):hover{background:var(--chip)}
   .day .d{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -425,6 +453,8 @@
         <p class="sec-sub">Klikni na deň a vyber, čo si mal. Za mesiac uvidíš, koľko dní si to udržal a aké máš priemery.</p>
       </div>
     </div>
+
+    <div class="auth" id="auth"></div>
 
     <div class="cal-head">
       <button class="navbtn" id="prevM" type="button" aria-label="Predchádzajúci mesiac">‹</button>
@@ -864,47 +894,243 @@ ING.forEach(([key,label]) => {
 sortSel.addEventListener('change', render);
 render();
 
+// ---------- pripojenie na Firebase ----------
+// Nahraď hodnotami zo svojho projektu: Firebase konzola → Project settings → Your apps → Web.
+// Kým sú tu zástupné hodnoty, denník funguje len lokálne v prehliadači.
+const FIREBASE_CONFIG = {
+  apiKey:            "SEM-VLOZ-apiKey",
+  authDomain:        "SEM-VLOZ.firebaseapp.com",
+  projectId:         "SEM-VLOZ-projectId",
+  storageBucket:     "SEM-VLOZ.appspot.com",
+  messagingSenderId: "SEM-VLOZ-senderId",
+  appId:             "SEM-VLOZ-appId"
+};
+const CLOUD_READY = !JSON.stringify(FIREBASE_CONFIG).includes("SEM-VLOZ");
+const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+
 // ---------- denník ----------
-const LSKEY = 'ranajky-dennik-v1';
+const LSKEY = 'ranajky-dennik-v2';
+const LSKEY_OLD = 'ranajky-dennik-v1';
 const calEl = document.getElementById('cal');
 const statsEl = document.getElementById('stats');
 const pickerEl = document.getElementById('picker');
 const calTitle = document.getElementById('calTitle');
 const storeNote = document.getElementById('storeNote');
+const authBox = document.getElementById('auth');
+
+// zápis = { "2026-08-31": "omeleta-slanina" } — kľúčom je názov receptu, nie poradie,
+// aby zápisy prežili pridanie alebo preskupenie receptov
+const bySlug = {};
+FOTO.forEach((s,i) => { bySlug[s] = i; });
+const recipeOf = key => (typeof key === 'number' ? RECIPES[key] : RECIPES[bySlug[key]]);
+const slugOf = key => (typeof key === 'number' ? FOTO[key] : key);
 
 let storageOk = true;
-function loadLog(){
-  try { return JSON.parse(localStorage.getItem(LSKEY)) || {}; }
-  catch(e){ storageOk = false; return {}; }
+let log = {};
+let user = null;
+let fb = null;
+
+function loadLocal(){
+  try {
+    const raw = localStorage.getItem(LSKEY) || localStorage.getItem(LSKEY_OLD);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const out = {};
+    Object.keys(parsed).forEach(k => { const s = slugOf(parsed[k]); if (s) out[k] = s; });
+    return out;
+  } catch(e){ storageOk = false; return {}; }
 }
-function saveLog(){
+function saveLocal(){
   try { localStorage.setItem(LSKEY, JSON.stringify(log)); }
-  catch(e){ storageOk = false; setNote(); }
-}
-function setNote(){
-  storeNote.textContent = storageOk
-    ? "Zápisy sú uložené len v tomto prehliadači a v tomto zariadení — nikam sa neposielajú a nikto iný ich nevidí. Ak vyčistíš údaje stránok alebo otvoríš stránku v inom prehliadači, denník bude prázdny."
-    : "Tento prehliadač neumožňuje ukladanie údajov stránok (napr. v anonymnom okne), takže zápisy sa po zatvorení karty stratia.";
+  catch(e){ storageOk = false; }
 }
 
-let log = loadLog();
+log = loadLocal();
+
 const cur = new Date(); cur.setDate(1);
 let selDay = null;
 
 const pad = n => String(n).padStart(2,'0');
 const ymd = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+let cloudFailed = false;
+// bez prihlásenia sa nezapisuje — ibaže by sa prihlasovanie vôbec nenačítalo,
+// vtedy je lepšie nechať denník fungovať lokálne než ho zamknúť úplne
+const canEdit = () => !CLOUD_READY || cloudFailed || !!user;
 
+function setSync(text, isErr){
+  const el = document.getElementById('sync');
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle('err', !!isErr);
+}
+
+function setStoreNote(){
+  if (!storageOk){
+    storeNote.textContent = "Tento prehliadač neumožňuje ukladanie údajov stránok (napríklad anonymné okno), takže zápisy sa po zatvorení karty stratia.";
+  } else if (user){
+    storeNote.textContent = "Zápisy sú uložené na tvojom účte, takže ich nájdeš na každom zariadení, kde sa prihlásiš. Kópia zostáva aj v tomto prehliadači, aby sa denník zobrazil hneď.";
+  } else if (CLOUD_READY){
+    storeNote.textContent = "Bez prihlásenia sa dá denník len prezerať. Po prihlásení sa doterajšie zápisy z tohto prehliadača prenesú na tvoj účet a odvtedy ich uvidíš na všetkých zariadeniach.";
+  } else {
+    storeNote.textContent = "Zápisy sú uložené len v tomto prehliadači a v tomto zariadení — nikam sa neposielajú a nikto iný ich nevidí.";
+  }
+}
+
+// ---------- prihlásenie ----------
+const AUTH_ERR = {
+  'auth/invalid-email':          'Neplatná e-mailová adresa.',
+  'auth/missing-password':       'Zadaj heslo.',
+  'auth/weak-password':          'Heslo musí mať aspoň 6 znakov.',
+  'auth/email-already-in-use':   'Na tento e-mail už účet existuje — skús sa prihlásiť.',
+  'auth/invalid-credential':     'Nesprávny e-mail alebo heslo.',
+  'auth/wrong-password':         'Nesprávne heslo.',
+  'auth/user-not-found':         'Taký účet neexistuje. Zaregistruj sa nižšie.',
+  'auth/too-many-requests':      'Priveľa pokusov za sebou. Skús to o pár minút.',
+  'auth/network-request-failed': 'Nepodarilo sa spojiť so serverom. Skontroluj pripojenie.',
+  'auth/operation-not-allowed':  'Prihlasovanie e-mailom nie je v projekte zapnuté.'
+};
+const authMsg = (t, cls) => {
+  const el = document.getElementById('authMsg');
+  if (el){ el.textContent = t; el.className = 'auth-msg' + (cls ? ' ' + cls : ''); }
+};
+
+function renderAuth(){
+  if (!CLOUD_READY){
+    authBox.innerHTML =
+      `<h3>Denník zatiaľ beží len v tomto prehliadači</h3>
+       <p class="hint">Prihlasovanie sa zapne, keď do súboru doplníš údaje projektu z Firebase. Návod je v súbore NASTAVENIE-FIREBASE.md. Dovtedy sa dá denník normálne používať, len sa neprenesie na iné zariadenie.</p>`;
+    return;
+  }
+  if (user){
+    authBox.innerHTML =
+      `<div class="auth-in">
+         <span>Prihlásený ako <b>${esc(user.email)}</b></span>
+         <button class="btn ghost" type="button" id="logout">Odhlásiť</button>
+       </div>
+       <p class="sync" id="sync"></p>`;
+    document.getElementById('logout').addEventListener('click', () => fb.a.signOut(fb.auth));
+    return;
+  }
+  authBox.innerHTML =
+    `<h3>Prihlás sa a maj denník všade</h3>
+     <p class="hint">Zápisy sa uložia na tvoj účet, takže ich uvidíš na mobile aj na počítači. Recepty sú verejné, účet je potrebný len na denník.</p>
+     <form class="authform" id="authForm" autocomplete="on">
+       <input type="email" id="email" placeholder="tvoj@email.sk" autocomplete="email" required>
+       <input type="password" id="heslo" placeholder="heslo (aspoň 6 znakov)" autocomplete="current-password" required>
+       <button class="btn" type="submit" id="loginBtn">Prihlásiť</button>
+       <button class="btn ghost" type="button" id="regBtn">Zaregistrovať</button>
+       <button class="btn link" type="button" id="resetBtn">Zabudnuté heslo</button>
+     </form>
+     <p class="auth-msg" id="authMsg"></p>`;
+
+  const form = document.getElementById('authForm');
+  const val = () => [document.getElementById('email').value.trim(), document.getElementById('heslo').value];
+  // po úspešnom prihlásení sa formulár prekreslí, tlačidlá už nemusia existovať
+  const busy = on => { ['loginBtn','regBtn','resetBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = on;
+  }); };
+
+  async function run(fn, working){
+    authMsg(working);
+    busy(true);
+    try { await fn(); }
+    catch(e){ authMsg(AUTH_ERR[e.code] || 'Nepodarilo sa to. Skús znova.', 'err'); }
+    finally { busy(false); }
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const [em, pw] = val();
+    run(() => fb.a.signInWithEmailAndPassword(fb.auth, em, pw), 'Prihlasujem…');
+  });
+  document.getElementById('regBtn').addEventListener('click', () => {
+    const [em, pw] = val();
+    if (!em || pw.length < 6) return authMsg('Zadaj e-mail a heslo s aspoň 6 znakmi.', 'err');
+    run(() => fb.a.createUserWithEmailAndPassword(fb.auth, em, pw), 'Zakladám účet…');
+  });
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    const [em] = val();
+    if (!em) return authMsg('Najprv zadaj e-mail, na ktorý ti pošleme odkaz.', 'err');
+    run(async () => {
+      await fb.a.sendPasswordResetEmail(fb.auth, em);
+      authMsg('Poslali sme ti e-mail s odkazom na zmenu hesla.', 'ok');
+    }, 'Posielam…');
+  });
+}
+
+async function initCloud(){
+  renderAuth();
+  setStoreNote();
+  if (!CLOUD_READY) return;
+  try {
+    const [appMod, authMod, fsMod] = await Promise.all([
+      import(SDK + 'firebase-app.js'),
+      import(SDK + 'firebase-auth.js'),
+      import(SDK + 'firebase-firestore.js')
+    ]);
+    const app = appMod.initializeApp(FIREBASE_CONFIG);
+    fb = { a: authMod, f: fsMod, auth: authMod.getAuth(app), db: fsMod.getFirestore(app) };
+    fb.a.onAuthStateChanged(fb.auth, async u => {
+      user = u;
+      renderAuth();
+      setStoreNote();
+      if (u) await pullAndMerge();
+      renderCal();
+      renderPicker();
+    });
+  } catch(e){
+    fb = null;
+    cloudFailed = true;
+    authBox.innerHTML =
+      `<h3>Prihlasovanie sa nepodarilo načítať</h3>
+       <p class="hint">Denník beží ďalej lokálne v tomto prehliadači, zápisy sa len neprenesú na iné zariadenie. Skús obnoviť stránku.</p>`;
+    setStoreNote();
+    renderCal();
+    renderPicker();
+  }
+}
+
+async function pullAndMerge(){
+  if (!fb || !user) return;
+  const ref = fb.f.doc(fb.db, 'users', user.uid);
+  setSync('Načítavam z účtu…');
+  try {
+    const snap = await fb.f.getDoc(ref);
+    const cloud = (snap.exists() && snap.data().log) ? snap.data().log : {};
+    const local = log;
+    // pri prvom prihlásení sa doterajšie lokálne zápisy prenesú hore; pri konflikte platí účet
+    log = Object.assign({}, local, cloud);
+    saveLocal();
+    if (JSON.stringify(log) !== JSON.stringify(cloud)) await fb.f.setDoc(ref, { log }, { merge:true });
+    setSync('Uložené na účte');
+  } catch(e){
+    setSync('Z účtu sa nepodarilo načítať — vidíš lokálnu kópiu', true);
+  }
+}
+
+async function pushCloud(){
+  if (!fb || !user) return;
+  setSync('Ukladám…');
+  try {
+    await fb.f.setDoc(fb.f.doc(fb.db, 'users', user.uid), { log }, { merge:true });
+    setSync('Uložené na účte');
+  } catch(e){
+    setSync('Uloženie zlyhalo — zmena je zatiaľ len v tomto prehliadači', true);
+  }
+}
+
+// ---------- kalendár ----------
 function renderStats(y,m){
   const pre = `${y}-${pad(m+1)}-`;
-  const keys = Object.keys(log).filter(k => k.startsWith(pre) && RECIPES[log[k]]);
+  const keys = Object.keys(log).filter(k => k.startsWith(pre) && recipeOf(log[k]));
   const n = keys.length;
-  const avg = f => Math.round(keys.reduce((s,k) => s + f(RECIPES[log[k]]), 0) / n);
+  const avg = f => Math.round(keys.reduce((s,k) => s + f(recipeOf(log[k])), 0) / n);
   let top = '—';
   if (n){
     const c = {};
     keys.forEach(k => { c[log[k]] = (c[log[k]] || 0) + 1; });
     const best = Object.keys(c).sort((a,b) => c[b] - c[a])[0];
-    top = `${esc(RECIPES[best].name)} <small>${c[best]}×</small>`;
+    top = `${esc(recipeOf(best).name)} <small>${c[best]}×</small>`;
   }
   statsEl.innerHTML = `
     <div class="stat"><div class="k">Zapísaných dní</div><div class="v">${n}</div></div>
@@ -925,11 +1151,12 @@ function renderCal(){
   for (let i = 0; i < first; i++){ const e = document.createElement('div'); e.className = 'day blank'; kids.push(e); }
   for (let d = 1; d <= days; d++){
     const key = ymd(y,m,d);
+    const r = recipeOf(log[key]);
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'day' + (key === todayKey ? ' today' : '') + (key === selDay ? ' sel' : '');
-    b.innerHTML = `<span class="d">${d}</span>` +
-      (RECIPES[log[key]] ? `<span class="meal">${esc(RECIPES[log[key]].name)}</span>` : '');
+    b.disabled = !canEdit();
+    b.innerHTML = `<span class="d">${d}</span>` + (r ? `<span class="meal">${esc(r.name)}</span>` : '');
     b.addEventListener('click', () => { selDay = key; renderCal(); renderPicker(); });
     kids.push(b);
   }
@@ -938,20 +1165,21 @@ function renderCal(){
 }
 
 function renderPicker(){
-  if (!selDay){ pickerEl.hidden = true; return; }
+  if (!selDay || !canEdit()){ pickerEl.hidden = true; return; }
   pickerEl.hidden = false;
   const [Y,M,D] = selDay.split('-');
   const chosen = log[selDay];
   pickerEl.innerHTML =
     `<h3>${Number(D)}. ${MESIACE[Number(M)-1].toLowerCase()} ${Y}</h3>
      <div class="picklist">
-       ${RECIPES.map((r,i) => `<button type="button" class="pick${chosen===i?' on':''}" data-i="${i}">${esc(r.name)}</button>`).join('')}
+       ${RECIPES.map((r,i) => `<button type="button" class="pick${chosen===FOTO[i]?' on':''}" data-slug="${FOTO[i]}">${esc(r.name)}</button>`).join('')}
        ${chosen !== undefined ? `<button type="button" class="pick del" data-del="1">Vymazať zápis</button>` : ''}
      </div>`;
   pickerEl.querySelectorAll('.pick').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.del) delete log[selDay];
-    else log[selDay] = Number(b.dataset.i);
-    saveLog();
+    else log[selDay] = b.dataset.slug;
+    saveLocal();
+    pushCloud();
     renderCal();
     renderPicker();
   }));
@@ -960,8 +1188,8 @@ function renderPicker(){
 document.getElementById('prevM').addEventListener('click', () => { cur.setMonth(cur.getMonth()-1); selDay = null; renderCal(); renderPicker(); });
 document.getElementById('nextM').addEventListener('click', () => { cur.setMonth(cur.getMonth()+1); selDay = null; renderCal(); renderPicker(); });
 
-setNote();
 renderCal();
+initCloud();
 </script>
 </body>
 </html>
