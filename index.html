@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <!-- ?v= na konci obchádza cache prehliadača: pri zmene vzhľadu zvýš číslo -->
-<link rel="stylesheet" href="css/styl.css?v=4">
+<link rel="stylesheet" href="css/styl.css?v=5">
 </head>
 <body>
 
@@ -29,9 +29,8 @@
   </div>
 </nav>
 
-<div class="wrap" id="obsah">
-
-  <header>
+<header class="hero" id="obsah">
+  <div class="hero-in">
     <div class="eyebrow">Raňajkový zásobník · nízke sacharidy · chudnutie tuku</div>
     <h1>Raňajky s minimom sacharidov</h1>
     <p class="lede">Dvadsaťštyri raňajok — väčšina do pätnástich minút, sedem z nich má tri suroviny a nulový postup. Každá má <strong>najviac 10 g sacharidov</strong> a <strong>20 až 50 g bielkovín</strong> preto, že takéto raňajky držia sýtosť do obeda, a kto nemá o desiatej hlad, ten cez deň zje menej.</p>
@@ -42,6 +41,10 @@
       <span class="fact"><b>≤ 10 g</b> sacharidov</span>
       <span class="fact"><b>20–50 g</b> bielkovín</span>
     </div>
+  </div>
+</header>
+
+<div class="wrap">
 
     <div class="panel">
       <div class="panel-head">
@@ -70,7 +73,6 @@
         </div>
       </div>
     </div>
-  </header>
 
   <section id="recepty">
     <div class="sec-head">
@@ -81,6 +83,13 @@
     </div>
 
     <div class="controls">
+      <div class="searchbox">
+        <label class="ctrl-lbl" for="search">Hľadať</label>
+        <div class="searchrow">
+          <input type="search" id="search" placeholder="názov jedla alebo surovina — napríklad tuniak" autocomplete="off">
+          <button class="btn ghost" type="button" id="searchClear" hidden>Zrušiť</button>
+        </div>
+      </div>
       <div>
         <span class="ctrl-lbl">Typ raňajok</span>
         <div class="ctrl-row" id="filters" role="group" aria-label="Filtrovanie podľa typu"></div>
@@ -210,12 +219,12 @@
 
 <!-- Poradie načítania je dôležité: config a data musia byť skôr než zvyšok,
      spolocne.js skôr než recepty a denník, denník skôr než auth. -->
-<script src="js/config.js?v=4" defer></script>
-<script src="js/data.js?v=4" defer></script>
-<script src="js/spolocne.js?v=4" defer></script>
-<script src="js/recepty.js?v=4" defer></script>
-<script src="js/dennik.js?v=4" defer></script>
-<script src="js/auth.js?v=4" defer></script>
-<script src="js/navigacia.js?v=4" defer></script>
+<script src="js/config.js?v=5" defer></script>
+<script src="js/data.js?v=5" defer></script>
+<script src="js/spolocne.js?v=5" defer></script>
+<script src="js/recepty.js?v=5" defer></script>
+<script src="js/dennik.js?v=5" defer></script>
+<script src="js/auth.js?v=5" defer></script>
+<script src="js/navigacia.js?v=5" defer></script>
 </body>
 </html>
