@@ -62,6 +62,79 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:1060px;margin:0 auto;padding:0 24px 96px}
+
+  /* ---------- horná lišta ---------- */
+  .skip{
+    position:absolute;left:-9999px;top:0;z-index:60;
+    background:var(--accent);color:var(--on-accent);padding:10px 16px;
+    font-size:13px;border-radius:0 0 3px 0;
+  }
+  .skip:focus{left:0}
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:var(--paper);border-bottom:1px solid transparent;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  @supports (backdrop-filter: blur(8px)){
+    .topbar{background:transparent;backdrop-filter:blur(14px) saturate(1.4)}
+    .topbar::before{
+      content:"";position:absolute;inset:0;background:var(--paper);opacity:.82;z-index:-1;
+    }
+  }
+  .topbar.scrolled{border-bottom-color:var(--line);box-shadow:var(--shadow)}
+  .topbar-in{
+    max-width:1060px;margin:0 auto;padding:0 24px;
+    height:56px;display:flex;align-items:center;gap:20px;
+  }
+  .brand{
+    font-family:"Fraunces",Georgia,serif;font-size:19px;font-weight:600;
+    color:var(--ink);text-decoration:none;white-space:nowrap;
+  }
+  .navlinks{display:flex;gap:4px;align-items:center;margin-right:auto;min-width:0}
+  .navlinks a{
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.04em;
+    color:var(--muted);text-decoration:none;padding:7px 11px;border-radius:100px;
+    white-space:nowrap;transition:color .15s ease, background .15s ease;
+  }
+  .navlinks a:hover{color:var(--ink);background:var(--chip)}
+  .navlinks a.on{color:var(--accent);background:var(--chip)}
+  .acct{
+    font-family:"IBM Plex Mono",monospace;font-size:12px;
+    padding:7px 14px;border-radius:100px;cursor:pointer;white-space:nowrap;
+    border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);
+  }
+  .acct.in{background:transparent;color:var(--accent)}
+  .acct:active{transform:translateY(1px)}
+
+  /* ---------- bočný panel s prihlásením ---------- */
+  .drawer{position:fixed;inset:0;z-index:70}
+  .drawer-bg{
+    position:absolute;inset:0;background:rgba(20,14,6,.42);
+    opacity:0;transition:opacity .22s ease;
+  }
+  .drawer-panel{
+    position:absolute;top:0;right:0;height:100%;width:min(420px,100%);
+    background:var(--surface);border-left:1px solid var(--line);
+    padding:20px 24px;overflow-y:auto;
+    transform:translateX(100%);transition:transform .26s cubic-bezier(.32,.72,0,1);
+    box-shadow:-24px 0 48px -32px rgba(20,14,6,.5);
+  }
+  .drawer.open .drawer-bg{opacity:1}
+  .drawer.open .drawer-panel{transform:translateX(0)}
+  .drawer-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;margin-bottom:20px;
+  }
+  /* v paneli už je rámik zbytočný, panel sám je rámom */
+  .drawer .auth{border:none;box-shadow:none;padding:0;margin:0;background:none}
+
+  /* ---------- stavový pruh v denníku ---------- */
+  .dstatus{
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+    margin-top:22px;padding:14px 18px;font-size:14.5px;
+    border:1px solid var(--line);border-radius:2px;background:var(--surface);
+  }
+  .dstatus .sync{margin:0;margin-left:auto}
   h1,h2,h3{font-family:"Fraunces","Iowan Old Style",Georgia,serif;font-weight:600;text-wrap:balance;line-height:1.15;margin:0}
   p{margin:0}
 
@@ -106,7 +179,8 @@
   .note b{color:var(--ink)}
 
   /* ---------- section ---------- */
-  section{padding-top:64px}
+  section{padding-top:64px;scroll-margin-top:64px}
+  html{scroll-behavior:smooth}
   .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
   h2{font-size:clamp(26px,3.4vw,34px);letter-spacing:-.01em}
   .sec-sub{color:var(--muted);font-size:15px;max-width:60ch;margin-top:6px}
@@ -373,6 +447,12 @@
   }
 
   /* na úzkych displejoch sa názov jedla do bunky nezmestí — nahradí ho bodka */
+  @media (max-width:620px){
+    .brand{display:none}
+    .topbar-in{padding:0 18px;gap:12px}
+    .navlinks a{padding:7px 9px}
+  }
+
   @media (max-width:560px){
     .day{min-height:52px;padding:5px 4px;align-items:center;gap:3px}
     .day .meal{
@@ -387,7 +467,7 @@
   /* tlač: ostanú len recepty, každý vcelku na jednej strane */
   @media print{
     body{background:#FFFFFF;color:#000000}
-    .controls,.auth,#dennik,.navbtn,.empty,footer{display:none !important}
+    .controls,.auth,#dennik,.navbtn,.empty,footer,.topbar,.drawer,.skip{display:none !important}
     .card{break-inside:avoid;box-shadow:none;border:1px solid #CCCCCC}
     .shot{display:none}
     .grid{grid-template-columns:repeat(2,1fr)}
@@ -396,6 +476,7 @@
   }
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important;animation:none !important}
+    html{scroll-behavior:auto}
   }
 html,body{margin:0;padding:0}
   img{max-width:100%}

@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------
 
 const authBox = document.getElementById('auth');
+const acctBtn = document.getElementById('acctBtn');
+const dstatus = document.getElementById('dstatus');
 
 const AUTH_ERR = {
   'auth/invalid-email':          'Neplatná e-mailová adresa.',
@@ -30,7 +32,37 @@ function setSync(text, isErr){
   el.classList.toggle('err', !!isErr);
 }
 
+// Skrátený e-mail do tlačidla v lište — celá adresa by ju roztiahla.
+function shortMail(mail){
+  const [meno] = mail.split('@');
+  return meno.length > 12 ? meno.slice(0,11) + '…' : meno;
+}
+
+function renderTopbar(){
+  if (!CLOUD_READY || APP.cloudFailed){ acctBtn.hidden = true; return; }
+  acctBtn.hidden = false;
+  acctBtn.textContent = APP.user ? shortMail(APP.user.email) : 'Prihlásiť';
+  acctBtn.classList.toggle('in', !!APP.user);
+}
+
+function renderDstatus(){
+  if (!CLOUD_READY || APP.cloudFailed){
+    dstatus.hidden = true;
+    return;
+  }
+  dstatus.hidden = false;
+  dstatus.innerHTML = APP.user
+    ? `<span>Prihlásený ako <b>${esc(APP.user.email)}</b></span><span class="sync" id="sync"></span>`
+    : `<span>Zapisovať môžeš po prihlásení.</span>
+       <button class="btn" type="button" id="dsLogin">Prihlásiť sa</button>`;
+  const btn = document.getElementById('dsLogin');
+  if (btn) btn.addEventListener('click', () => APP.nav && APP.nav.open());
+}
+
 function renderAuth(){
+  renderTopbar();
+  renderDstatus();
+
   if (!CLOUD_READY){
     authBox.innerHTML =
       `<h3>Denník zatiaľ beží len v tomto prehliadači</h3>
@@ -40,11 +72,12 @@ function renderAuth(){
 
   if (APP.user){
     authBox.innerHTML =
-      `<div class="auth-in">
-         <span>Prihlásený ako <b>${esc(APP.user.email)}</b></span>
+      `<h3>Tvoj účet</h3>
+       <p class="hint">Denník sa ukladá na tento účet. Prihlás sa ním na inom zariadení a nájdeš tam tie isté zápisy.</p>
+       <div class="auth-in">
+         <span>${esc(APP.user.email)}</span>
          <button class="btn ghost" type="button" id="logout">Odhlásiť</button>
-       </div>
-       <p class="sync" id="sync"></p>`;
+       </div>`;
     document.getElementById('logout')
       .addEventListener('click', () => APP.fb.a.signOut(APP.fb.auth));
     return;
@@ -156,8 +189,11 @@ async function initCloud(){
     APP.fb = { a: authMod, f: fsMod, auth: authMod.getAuth(app), db: fsMod.getFirestore(app) };
 
     APP.fb.a.onAuthStateChanged(APP.fb.auth, async u => {
+      const bolPrihlaseny = !!APP.user;
       APP.user = u;
       renderAuth();
+      // po úspešnom prihlásení panel zavrieme, nech je vidno denník
+      if (u && !bolPrihlaseny && APP.nav && APP.nav.isOpen()) APP.nav.close();
       if (u) await pullAndMerge();
       APP.dennik.redraw();
     });

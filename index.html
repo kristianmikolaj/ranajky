@@ -14,7 +14,21 @@
 </head>
 <body>
 
-<div class="wrap">
+<a class="skip" href="#obsah">Preskočiť na obsah</a>
+
+<nav class="topbar" aria-label="Hlavná navigácia">
+  <div class="topbar-in">
+    <a class="brand" href="#obsah">Raňajky</a>
+    <div class="navlinks">
+      <a href="#recepty" data-sec="recepty">Recepty</a>
+      <a href="#dennik" data-sec="dennik">Denník</a>
+      <a href="#zameny" data-sec="zameny">Zámeny</a>
+    </div>
+    <button class="acct" type="button" id="acctBtn" aria-haspopup="dialog" aria-expanded="false">Prihlásiť</button>
+  </div>
+</nav>
+
+<div class="wrap" id="obsah">
 
   <header>
     <div class="eyebrow">Raňajkový zásobník · nízke sacharidy · chudnutie tuku</div>
@@ -50,7 +64,7 @@
     </div>
   </header>
 
-  <section>
+  <section id="recepty">
     <div class="sec-head">
       <div>
         <h2>Zásobník receptov</h2>
@@ -92,7 +106,7 @@
       </div>
     </div>
 
-    <div class="auth" id="auth"></div>
+    <div class="dstatus" id="dstatus"></div>
 
     <div class="cal-head">
       <button class="navbtn" id="prevM" type="button" aria-label="Predchádzajúci mesiac">‹</button>
@@ -106,7 +120,7 @@
     <p class="store-note" id="storeNote"></p>
   </section>
 
-  <section>
+  <section id="zameny">
     <h2>Zámeny, keď niečo chýba</h2>
     <p class="sec-sub">Schéma je vždy rovnaká: <strong>bielkovina + tuk + zelenina</strong>. Ktorýkoľvek stĺpec sa dá vymeniť riadok za riadok.</p>
     <div class="tbl-wrap" style="margin-top:22px">
@@ -167,6 +181,17 @@
   </footer>
 </div>
 
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer-bg" id="drawerBg"></div>
+  <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="drawer-head">
+      <span class="eyebrow" id="drawerTitle">Účet</span>
+      <button class="navbtn" type="button" id="drawerClose" aria-label="Zavrieť">×</button>
+    </div>
+    <div class="auth" id="auth"></div>
+  </aside>
+</div>
+
 <!-- Poradie načítania je dôležité: config a data musia byť skôr než zvyšok,
      spolocne.js skôr než recepty a denník, denník skôr než auth. -->
 <script src="js/config.js" defer></script>
@@ -175,5 +200,6 @@
 <script src="js/recepty.js" defer></script>
 <script src="js/dennik.js" defer></script>
 <script src="js/auth.js" defer></script>
+<script src="js/navigacia.js" defer></script>
 </body>
 </html>

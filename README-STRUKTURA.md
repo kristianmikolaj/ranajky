@@ -9,6 +9,7 @@ js/spolocne.js        drobné pomôcky a spoločný stav
 js/recepty.js         karty, filtre, zoradenie
 js/dennik.js          kalendár, priemery, výber jedla na deň
 js/auth.js            registrácia, prihlásenie, ukladanie na účet
+js/navigacia.js       horná lišta a bočný panel s prihlásením
 img/                  fotky jedál (nepovinné)
 ```
 
@@ -26,12 +27,36 @@ Meň všetky tri, inak bude jeden režim vyzerať inak než druhý.
 
 **Prepnúť na iný Firebase projekt** → `js/config.js`, nič iné.
 
+## Pozor na rovnaké názvy
+
+Súbory sa načítavajú ako obyčajné skripty, takže všetky `const` na najvyššej
+úrovni žijú v jednom spoločnom priestore. Keď to isté meno deklaruješ v dvoch
+súboroch, druhý z nich **celý spadne** a prehliadač o tom povie len v konzole.
+Stalo sa to pri `acctBtn` — deklaruje ho `auth.js` a `navigacia.js` ho len
+používa, lebo sa načíta neskôr.
+
+Rýchla kontrola, kým to pushneš:
+
+```bash
+node -e "
+const fs=require('fs'), kde={};
+['config','data','spolocne','recepty','dennik','auth','navigacia'].forEach(f=>{
+  [...fs.readFileSync('js/'+f+'.js','utf8')
+     .matchAll(/^(?:const|let|var|function|async function)\s+([A-Za-z_\\$][\w\\$]*)/gm)]
+    .forEach(m=>{ (kde[m[1]] ||= []).push(f); });
+});
+const k=Object.entries(kde).filter(([,v])=>v.length>1);
+console.log(k.length? 'KOLIZIE: '+k.map(([n,v])=>n+' ('+v.join(', ')+')').join(', ') : 'ziadne kolizie');
+"
+```
+
 ## Prečo sa súbory načítavajú v tomto poradí
 
 Na konci `index.html` je šesť `<script>` značiek a poradie nie je náhodné:
 `config` a `data` musia byť skôr než všetko ostatné, `spolocne` skôr než
 `recepty` a `dennik`, a `dennik` skôr než `auth` — auth si doňho na konci
-zavesí ukladanie na účet.
+zavesí ukladanie na účet — a `navigacia` úplne posledná, lebo používa
+veci z `auth`.
 
 ## Miestne otvorenie
 
