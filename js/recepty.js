@@ -13,16 +13,22 @@ function card(r, i){
   const pk = r.p*4, fk = r.f*9, ck = r.c*4, tot = pk + fk + ck;
   const el = document.createElement('article');
   el.className = 'card';
+
+  // Kým recept nemá fotku, obálku karty ladíme podľa toho, ktoré makro
+  // v nej prevláda — bielkovinová raňajka je zelenkastá, tučná zlatá.
+  const dom = pk >= fk && pk >= ck ? '--protein' : (fk >= ck ? '--fat' : '--carb');
+  el.style.setProperty('--cover', `var(${dom})`);
   el.innerHTML = `
     <div class="shot">
       <div class="shot-ph">
-        <span class="ph-lbl">Sem príde foto</span>
+        <span class="ph-num">${String(i+1).padStart(2,'0')}</span>
         <span class="ph-file">img/${FOTO[i]}.jpg</span>
       </div>
       <img src="img/${FOTO[i]}.jpg" alt="${esc(r.name)}" loading="lazy">
+      <span class="ph-badge">${String(i+1).padStart(2,'0')}</span>
     </div>
     <div class="card-top">
-      <div class="card-idx"><span>${String(i+1).padStart(2,'0')}</span><span class="time">${esc(r.time)}</span></div>
+      <span class="time">${esc(r.time)}</span>
       <h3>${esc(r.name)}</h3>
     </div>
     <div class="macros">
