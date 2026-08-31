@@ -24,6 +24,7 @@ const APP = {
   user: null,        // prihlásený používateľ, alebo null
   fb: null,          // načítané Firebase moduly
   cloudFailed: false,// SDK sa nepodarilo stiahnuť — denník beží aspoň lokálne
+  authKnown: false,  // už vieme, či je človek prihlásený (Firebase odpovedal)
   dennik: null,      // vyplní dennik.js
 
   // Bez prihlásenia sa nezapisuje. Výnimka: keď sa prihlasovanie vôbec

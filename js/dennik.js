@@ -12,6 +12,8 @@ const statsEl   = document.getElementById('stats');
 const pickerEl  = document.getElementById('picker');
 const calTitle  = document.getElementById('calTitle');
 const storeNote = document.getElementById('storeNote');
+const dennikBody   = document.getElementById('dennikBody');
+const dennikLocked = document.getElementById('dennikLocked');
 
 let storageOk = true;
 let log = {};                 // { "2026-08-31": "omeleta-slanina" }
@@ -34,6 +36,18 @@ function saveLocal(){
 }
 
 log = loadLocal();
+
+// Bez prihlásenia sa denník neukáže vôbec — len pozvánka.
+// Keď prihlasovanie nie je nastavené alebo sa nenačítalo, denník beží lokálne
+// a zamykať niečo, do čoho sa nedá prihlásiť, by nedávalo zmysel.
+function applyLock(){
+  // kým Firebase neodpovie, neukáž ani jedno — vracajúcemu sa človeku
+  // by inak na okamih bliklo prihlásenie, hoci prihlásený je
+  const caka = CLOUD_READY && !APP.cloudFailed && !APP.authKnown;
+  const otvoreny = APP.canEdit();
+  dennikBody.hidden   = caka || !otvoreny;
+  dennikLocked.hidden = caka ||  otvoreny;
+}
 
 function setStoreNote(){
   if (!storageOk){
@@ -149,8 +163,9 @@ APP.dennik = {
   saveLocal,
   setStoreNote,
   push: null,
-  redraw(){ setStoreNote(); renderCal(); renderPicker(); }
+  redraw(){ applyLock(); setStoreNote(); renderCal(); renderPicker(); }
 };
 
+applyLock();
 setStoreNote();
 renderCal();

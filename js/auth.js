@@ -50,13 +50,12 @@ function renderDstatus(){
     dstatus.hidden = true;
     return;
   }
-  dstatus.hidden = false;
-  dstatus.innerHTML = APP.user
-    ? `<span>Prihlásený ako <b>${esc(APP.user.email)}</b></span><span class="sync" id="sync"></span>`
-    : `<span>Zapisovať môžeš po prihlásení.</span>
-       <button class="btn" type="button" id="dsLogin">Prihlásiť sa</button>`;
-  const btn = document.getElementById('dsLogin');
-  if (btn) btn.addEventListener('click', () => APP.nav && APP.nav.open());
+  // pruh sa ukáže len prihlásenému — neprihlásený vidí namiesto celého
+  // denníka pozvánku, tam by bol pruh zbytočný
+  dstatus.hidden = !APP.user;
+  if (!APP.user) return;
+  dstatus.innerHTML =
+    `<span>Prihlásený ako <b>${esc(APP.user.email)}</b></span><span class="sync" id="sync"></span>`;
 }
 
 function renderAuth(){
@@ -191,6 +190,7 @@ async function initCloud(){
     APP.fb.a.onAuthStateChanged(APP.fb.auth, async u => {
       const bolPrihlaseny = !!APP.user;
       APP.user = u;
+      APP.authKnown = true;
       renderAuth();
       // po úspešnom prihlásení panel zavrieme, nech je vidno denník
       if (u && !bolPrihlaseny && APP.nav && APP.nav.isOpen()) APP.nav.close();
@@ -200,6 +200,7 @@ async function initCloud(){
   } catch(e){
     APP.fb = null;
     APP.cloudFailed = true;
+    APP.authKnown = true;
     authBox.innerHTML =
       `<h3>Prihlasovanie sa nepodarilo načítať</h3>
        <p class="hint">Denník beží ďalej lokálne v tomto prehliadači, zápisy sa len neprenesú na iné zariadenie. Skús obnoviť stránku.</p>`;

@@ -83,4 +83,8 @@ document.addEventListener('keydown', e => {
 });
 
 // auth.js potrebuje panel otvárať (tlačidlo v denníku) aj zatvárať (po prihlásení)
+// tlačidlo v pozvánke na mieste zamknutého denníka
+const lockedLogin = document.getElementById('lockedLogin');
+if (lockedLogin) lockedLogin.addEventListener('click', openDrawer);
+
 APP.nav = { open: openDrawer, close: closeDrawer, isOpen };
